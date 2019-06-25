@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/kettek/goro"
 	"log"
+
+	"github.com/kettek/goro"
 )
 
 func main() {
@@ -16,21 +17,40 @@ func main() {
 		screen.SetTitle("goRo-game")
 
 		// Our initial variables.
-		playerX, playerY := screen.Columns/2, screen.Rows/2
+		var entities []*Entity
+		mapWidth, mapHeight := 80, 45
+
+		colors := map[string]goro.Color{
+			"darkWall":   goro.Color{R: 0, G: 0, B: 100, A: 255},
+			"darkGround": goro.Color{R: 50, G: 50, B: 150, A: 255},
+		}
+
+		gameMap := GameMap{
+			Width:  mapWidth,
+			Height: mapHeight,
+		}
+
+		gameMap.Initialize()
+
+		player := NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorWhite})
+		npc := NewEntity(screen.Columns/2-5, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorYellow})
+
+		entities = append(entities, player, npc)
 
 		for {
 			// Draw screen.
-			screen.DrawRune(playerX, playerY, '@', goro.Style{})
-			screen.Flush()
-			screen.DrawRune(playerX, playerY, ' ', goro.Style{})
+			RenderAll(screen, entities, gameMap, colors)
+
+			ClearAll(screen, entities)
 
 			// Handle events.
 			switch event := screen.WaitEvent().(type) {
 			case goro.EventKey:
 				switch action := handleKeyEvent(event).(type) {
 				case ActionMove:
-					playerX += action.X
-					playerY += action.Y
+					if !gameMap.IsBlocked(player.X+action.X, player.Y+action.Y) {
+						player.Move(action.X, action.Y)
+					}
 				case ActionQuit:
 					goro.Quit()
 				}

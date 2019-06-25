@@ -23,6 +23,10 @@ github.com/jfreymuth/oggvorbis v1.0.0/go.mod h1:abe6F9QRjuU9l+2jek3gj46lu40N4qlY
 github.com/jfreymuth/vorbis v1.0.0/go.mod h1:8zy3lUAm9K/rJJk223RKy6vjCZTWC61NA2QD06bfOE0=
 github.com/kettek/goro v0.0.0-20190621012139-e8ee6f570a89 h1:srKP1QGpBlVEf5I4TA9nA/eRLC5sGnCinUBKyi2sJgQ=
 github.com/kettek/goro v0.0.0-20190621012139-e8ee6f570a89/go.mod h1:wwgugDvR3Lhzz0hvCpjEFbu12RmCvkLDDYSzM3ILeww=
+github.com/kettek/goro v0.0.0-20190621162724-e1aa755b9b0a h1:24tYRUL2wWAe656b9ZArTc1R0W1hQKZZqA/IzRhKcRU=
+github.com/kettek/goro v0.0.0-20190621162724-e1aa755b9b0a/go.mod h1:wwgugDvR3Lhzz0hvCpjEFbu12RmCvkLDDYSzM3ILeww=
+github.com/kettek/goro v0.0.0-20190625061414-b4df0c91e4ad h1:p44GBZPDjN+as02eyUrtkOnSSOnQV0IMLwEUzK43DPA=
+github.com/kettek/goro v0.0.0-20190625061414-b4df0c91e4ad/go.mod h1:wwgugDvR3Lhzz0hvCpjEFbu12RmCvkLDDYSzM3ILeww=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
