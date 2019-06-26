@@ -1,4 +1,4 @@
-package main
+package mapping
 
 type GameMap struct {
 	Width, Height int

@@ -1,4 +1,4 @@
-package main
+package mapping
 
 type Tile struct {
 	BlockMovement bool

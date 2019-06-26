@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/kettek/goro"
+	"github.com/kettek/goro-game/entity"
+	"github.com/kettek/goro-game/mapping"
 )
 
 // RenderAll does something.
-func RenderAll(screen *goro.Screen, entities []*Entity, gameMap GameMap, colors map[string]goro.Color) {
+func RenderAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.GameMap, colors map[string]goro.Color) {
 	// Draw all the tiles in the game map.
 	for x, column := range gameMap.Tiles {
 		for y, tile := range column {
@@ -24,16 +26,16 @@ func RenderAll(screen *goro.Screen, entities []*Entity, gameMap GameMap, colors 
 	screen.Flush()
 }
 
-func ClearAll(screen *goro.Screen, entities []*Entity) {
+func ClearAll(screen *goro.Screen, entities []*entity.Entity) {
 	for _, entity := range entities {
 		ClearEntity(screen, entity)
 	}
 }
 
-func DrawEntity(screen *goro.Screen, e *Entity) {
+func DrawEntity(screen *goro.Screen, e *entity.Entity) {
 	screen.DrawRune(e.X, e.Y, e.Rune, e.Style)
 }
 
-func ClearEntity(screen *goro.Screen, e *Entity) {
+func ClearEntity(screen *goro.Screen, e *entity.Entity) {
 	screen.DrawRune(e.X, e.Y, ' ', goro.Style{})
 }

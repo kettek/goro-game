@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/kettek/goro"
+	"github.com/kettek/goro-game/entity"
+	"github.com/kettek/goro-game/mapping"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 		screen.SetTitle("goRo-game")
 
 		// Our initial variables.
-		var entities []*Entity
+		var entities []*entity.Entity
 		mapWidth, mapHeight := 80, 45
 
 		colors := map[string]goro.Color{
@@ -25,15 +27,15 @@ func main() {
 			"darkGround": goro.Color{R: 50, G: 50, B: 150, A: 255},
 		}
 
-		gameMap := GameMap{
+		gameMap := mapping.GameMap{
 			Width:  mapWidth,
 			Height: mapHeight,
 		}
 
 		gameMap.Initialize()
 
-		player := NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorWhite})
-		npc := NewEntity(screen.Columns/2-5, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorYellow})
+		player := entity.NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorWhite})
+		npc := entity.NewEntity(screen.Columns/2-5, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorYellow})
 
 		entities = append(entities, player, npc)
 
