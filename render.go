@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/kettek/goro"
+
 	"github.com/kettek/goro-game/entity"
 	"github.com/kettek/goro-game/mapping"
 )
 
-// RenderAll does something.
-func RenderAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.GameMap, colors map[string]goro.Color) {
+// DrawAll draws all entities and the gameMap to the screen and flushes it.
+func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.GameMap, colors map[string]goro.Color) {
 	// Draw all the tiles in the game map.
 	for x, column := range gameMap.Tiles {
 		for y, tile := range column {

@@ -41,7 +41,7 @@ func main() {
 
 		for {
 			// Draw screen.
-			RenderAll(screen, entities, gameMap, colors)
+			DrawAll(screen, entities, gameMap, colors)
 
 			ClearAll(screen, entities)
 
