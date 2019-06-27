@@ -24,7 +24,7 @@ func main() {
 
 		colors := map[string]goro.Color{
 			"darkWall":   goro.Color{R: 0, G: 0, B: 100, A: 255},
-			"darkGround": goro.Color{R: 50, G: 50, B: 150, A: 255},
+			"darkGround": goro.Color{R: 100, G: 100, B: 100, A: 255},
 		}
 
 		gameMap := mapping.GameMap{
