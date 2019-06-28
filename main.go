@@ -18,26 +18,30 @@ func main() {
 		// Screen configuration.
 		screen.SetTitle("goRo-game")
 
+		// Randomize our seed so the map is randomized per run.
+		goro.SetSeed(goro.RandomSeed())
+
 		// Our initial variables.
 		var entities []*entity.Entity
 		mapWidth, mapHeight := 80, 45
+		maxRooms, roomMinSize, roomMaxSize := 30, 10, 6
 
 		colors := map[string]goro.Color{
 			"darkWall":   goro.Color{R: 0, G: 0, B: 100, A: 255},
 			"darkGround": goro.Color{R: 100, G: 100, B: 100, A: 255},
 		}
 
-		gameMap := mapping.GameMap{
-			Width:  mapWidth,
-			Height: mapHeight,
-		}
-
-		gameMap.Initialize()
-
 		player := entity.NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorWhite})
 		npc := entity.NewEntity(screen.Columns/2-5, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorYellow})
 
 		entities = append(entities, player, npc)
+
+		gameMap := mapping.GameMap{
+			Width:  mapWidth,
+			Height: mapHeight,
+		}
+		gameMap.Initialize()
+		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, mapWidth, mapHeight, player)
 
 		for {
 			// Draw screen.
