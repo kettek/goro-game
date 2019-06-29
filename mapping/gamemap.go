@@ -26,13 +26,8 @@ func (g *GameMap) Initialize() {
 	}
 }
 
-// IsBlocked returns if the given coordinates are blocking.
-func (g *GameMap) IsBlocked(x, y int) bool {
-	return g.Tiles[x][y].BlockMovement
-}
-
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
-func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize, mapWidth, mapHeight int, player *entity.Entity) {
+func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity.Entity) {
 	var rooms []*Rect
 
 	for r := 0; r < maxRooms; r++ {
@@ -40,8 +35,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize, mapWidth, mapHeigh
 		width := roomMinSize + goro.Random.Intn(roomMaxSize)
 		height := roomMinSize + goro.Random.Intn(roomMaxSize)
 		// Generate a random position within the map boundaries.
-		x := goro.Random.Intn(mapWidth - width - 1)
-		y := goro.Random.Intn(mapHeight - height - 1)
+		x := goro.Random.Intn(g.Width - width - 1)
+		y := goro.Random.Intn(g.Height - height - 1)
 		// Create a Rect according to our generated sizes.
 		room := NewRect(x, y, width, height)
 
@@ -101,4 +96,9 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 	for y := goro.MinInt(y1, y2); y <= goro.MaxInt(y1, y2); y++ {
 		g.Tiles[x][y] = Tile{}
 	}
+}
+
+// IsBlocked returns if the given coordinates are blocking.
+func (g *GameMap) IsBlocked(x, y int) bool {
+	return g.Tiles[x][y].BlockMovement
 }
