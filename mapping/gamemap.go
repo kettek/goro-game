@@ -79,7 +79,9 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 func (g *GameMap) CreateRoom(r *Rect) {
 	for x := r.X1 + 1; x < r.X2; x++ {
 		for y := r.Y1 + 1; y < r.Y2; y++ {
-			g.SetTile(x, y, Tile{})
+			if g.InBounds(x, y) {
+				g.Tiles[x][y] = Tile{}
+			}
 		}
 	}
 }
@@ -87,24 +89,22 @@ func (g *GameMap) CreateRoom(r *Rect) {
 // CreateHTunnel creates a horizontal tunnel from x1 to/from x1 starting at y.
 func (g *GameMap) CreateHTunnel(x1, x2, y int) {
 	for x := goro.MinInt(x1, x2); x <= goro.MaxInt(x1, x2); x++ {
-		g.SetTile(x, y, Tile{})
+		if g.InBounds(x, y) {
+			g.Tiles[x][y] = Tile{}
+		}
 	}
 }
 
 // CreateVTunnel creates a vertical tunnel from y1 to/from y2 starting at x.
 func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 	for y := goro.MinInt(y1, y2); y <= goro.MaxInt(y1, y2); y++ {
-		g.SetTile(x, y, Tile{})
+		if g.InBounds(x, y) {
+			g.Tiles[x][y] = Tile{}
+		}
 	}
 }
 
-// SetTile sets the tile at the provided x and y coordinates to the value of t.
-func (g *GameMap) SetTile(x, y int, t Tile) {
-	if g.InBounds(x, y) {
-		g.Tiles[x][y] = t
-	}
-}
-
+// Explored returns if the tile at x by y has been explored.
 func (g *GameMap) Explored(x, y int) bool {
 	if g.InBounds(x, y) {
 		return g.Tiles[x][y].Explored
@@ -112,7 +112,7 @@ func (g *GameMap) Explored(x, y int) bool {
 	return false
 }
 
-// SetExplored
+// SetExplored sets the explored state of the tile at x and y to the passed explored bool.
 func (g *GameMap) SetExplored(x, y int, explored bool) {
 	if g.InBounds(x, y) {
 		g.Tiles[x][y].Explored = explored
