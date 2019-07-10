@@ -18,16 +18,24 @@ func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.Gam
 
 				if visible {
 					if tile.BlockSight {
+            screen.SetRune(x, y, '#')
 						screen.SetBackground(x, y, colors["lightWall"])
 					} else {
+            screen.SetRune(x, y, '.')
 						screen.SetBackground(x, y, colors["lightGround"])
 					}
 					gameMap.SetExplored(x, y, true)
 				} else if gameMap.Explored(x, y) {
 					if tile.BlockSight {
+            screen.SetRune(x, y, '#')
 						screen.SetBackground(x, y, colors["darkWall"])
 					} else {
-						screen.SetBackground(x, y, colors["darkGround"])
+            screen.SetRune(x, y, '.')
+            screen.SetStyle(x, y, goro.Style{
+              Background: colors["darkGround"],
+              Reverse: true,
+              Blink: true,
+            })
 					}
 				}
 			}
