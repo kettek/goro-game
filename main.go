@@ -16,17 +16,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	goro.Run(func(screen *goro.Screen) {
+  goro.Setup(func(screen *goro.Screen) {
 		// Screen configuration.
 		screen.SetTitle("goRo-game")
-    screen.SetSize(80, 24)
-    screen.SetGlyphs(0, "goRo.ttf", 16)
+    screen.SetSize(30, 30)
+
     screen.SetDefaultForeground(goro.ColorWhite)
     screen.SetDefaultBackground(goro.ColorBlack)
-
 		// Randomize our seed so the map is randomized per run.
 		goro.SetSeed(goro.RandomSeed())
+  })
 
+	goro.Run(func(screen *goro.Screen) {
 		// Our initial variables.
 		mapWidth, mapHeight := screen.Size()
 		maxRooms, roomMinSize, roomMaxSize := 30, 6, 10
