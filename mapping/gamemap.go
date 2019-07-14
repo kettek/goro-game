@@ -27,8 +27,8 @@ func (g *GameMap) Initialize() {
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
-func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity.Entity) {
-	var rooms []*Rect
+func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*entity.Entity, maxMonsters int) {
+	var rooms []Rect
 
 	for r := 0; r < maxRooms; r++ {
 		// Generate a random width and height.
@@ -55,8 +55,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 
 			// Always place the player in the center of the first room.
 			if len(rooms) == 0 {
-				player.X = roomCenterX
-				player.Y = roomCenterY
+				(*entities)[0].X = roomCenterX
+				(*entities)[0].Y = roomCenterY
 			} else {
 				prevCenterX, prevCenterY := rooms[len(rooms)-1].Center()
 
@@ -69,6 +69,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 					g.CreateHTunnel(prevCenterX, roomCenterX, roomCenterY)
 				}
 			}
+			// Place random monsters in the room.
+			g.PlaceEntities(room, entities, maxMonsters)
 			// Append our new room to our rooms list.
 			rooms = append(rooms, room)
 		}
@@ -76,7 +78,7 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 }
 
 // CreateRoom creates a room from a provided rect.
-func (g *GameMap) CreateRoom(r *Rect) {
+func (g *GameMap) CreateRoom(r Rect) {
 	for x := r.X1 + 1; x < r.X2; x++ {
 		for y := r.Y1 + 1; y < r.Y2; y++ {
 			if g.InBounds(x, y) {
@@ -100,6 +102,28 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 	for y := goro.MinInt(y1, y2); y <= goro.MaxInt(y1, y2); y++ {
 		if g.InBounds(x, y) {
 			g.Tiles[x][y] = Tile{}
+		}
+	}
+}
+
+// PlaceEntities places 0 to maxMonsters monster entities in the provided room.
+func (g *GameMap) PlaceEntities(room Rect, entities *[]*entity.Entity, maxMonsters int) {
+	monstersCount := goro.Random.Intn(maxMonsters)
+
+	for i := 0; i < monstersCount; i++ {
+		var monster *entity.Entity
+		// Acquire a random location within the room.
+		x := (1 + room.X1) + goro.Random.Intn(room.X2-room.X1-1)
+		y := (1 + room.Y1) + goro.Random.Intn(room.Y2-room.Y1-1)
+
+		if entity.FindEntityAtLocation(*entities, x, y, 0, 0) == nil {
+			// Generate an orc with 80% probability or a troll with 20%.
+			if goro.Random.Intn(100) < 80 {
+				monster = entity.NewEntity(x, y, 'o', goro.Style{Foreground: goro.ColorLime}, "Orc", entity.BlockMovement)
+			} else {
+				monster = entity.NewEntity(x, y, 'T', goro.Style{Foreground: goro.ColorGreen}, "Troll", entity.BlockMovement)
+			}
+			*entities = append(*entities, monster)
 		}
 	}
 }

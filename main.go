@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kettek/goro"
@@ -12,25 +13,27 @@ import (
 func main() {
 	// Initialize goro!
 	if err := goro.InitEbiten(); err != nil {
-	//if err := goro.InitTCell(); err != nil {
+		//if err := goro.InitTCell(); err != nil {
 		log.Fatal(err)
 	}
 
-  goro.Setup(func(screen *goro.Screen) {
+	goro.Setup(func(screen *goro.Screen) {
 		// Screen configuration.
 		screen.SetTitle("goRo-game")
-    screen.SetSize(30, 30)
+		screen.SetSize(80, 24)
 
-    screen.SetDefaultForeground(goro.ColorWhite)
-    screen.SetDefaultBackground(goro.ColorBlack)
+		screen.SetDefaultForeground(goro.ColorWhite)
+		screen.SetDefaultBackground(goro.ColorBlack)
 		// Randomize our seed so the map is randomized per run.
 		goro.SetSeed(goro.RandomSeed())
-  })
+	})
 
 	goro.Run(func(screen *goro.Screen) {
 		// Our initial variables.
 		mapWidth, mapHeight := screen.Size()
 		maxRooms, roomMinSize, roomMaxSize := 30, 6, 10
+		maxMonstersPerRoom := 3
+		gameState := PlayerTurnState
 
 		fovRadius := 10
 
@@ -41,12 +44,10 @@ func main() {
 			"lightGround": goro.Color{R: 150, G: 150, B: 150, A: 255},
 		}
 
-		player := entity.NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorWhite})
-		npc := entity.NewEntity(screen.Columns/2-5, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorYellow})
+		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorWhite}, "Player", entity.BlockMovement)
 
 		entities := []*entity.Entity{
 			player,
-			npc,
 		}
 
 		gameMap := mapping.GameMap{
@@ -54,14 +55,13 @@ func main() {
 			Height: mapHeight,
 		}
 		gameMap.Initialize()
-		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, player)
+		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, &entities, maxMonstersPerRoom)
 
 		fovRecompute := true
 
 		fovMap := InitializeFoV(&gameMap)
 
 		for {
-
 			if fovRecompute {
 				RecomputeFoV(fovMap, player.X, player.Y, fovRadius, fov.Light{})
 			}
@@ -78,9 +78,19 @@ func main() {
 			case goro.EventKey:
 				switch action := handleKeyEvent(event).(type) {
 				case ActionMove:
-					if !gameMap.IsBlocked(player.X+action.X, player.Y+action.Y) {
-						player.Move(action.X, action.Y)
-						fovRecompute = true
+					if gameState == PlayerTurnState {
+						x := player.X + action.X
+						y := player.Y + action.Y
+						if !gameMap.IsBlocked(x, y) {
+							otherEntity := entity.FindEntityAtLocation(entities, x, y, entity.BlockMovement, entity.BlockMovement)
+							if otherEntity != nil {
+								fmt.Printf("You lick the %s in the shins, much to its enjoyment!\n", otherEntity.Name)
+							} else {
+								player.Move(action.X, action.Y)
+								fovRecompute = true
+							}
+						}
+						gameState = EnemyTurnState
 					}
 				case ActionQuit:
 					goro.Quit()
@@ -88,6 +98,17 @@ func main() {
 			case goro.EventQuit:
 				return
 			}
+
+			// Handle entity updates.
+			if gameState == EnemyTurnState {
+				for i, e := range entities {
+					if i > 0 {
+						fmt.Printf("The %s punders.\n", e.Name)
+					}
+				}
+				gameState = PlayerTurnState
+			}
+
 		}
 	})
 }
