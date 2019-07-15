@@ -6,6 +6,7 @@ import (
 
 	"github.com/kettek/goro"
 	"github.com/kettek/goro-game/entity"
+	"github.com/kettek/goro-game/interfaces"
 	"github.com/kettek/goro-game/mapping"
 	"github.com/kettek/goro/fov"
 )
@@ -44,9 +45,9 @@ func main() {
 			"lightGround": goro.Color{R: 150, G: 150, B: 150, A: 255},
 		}
 
-		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorWhite}, "Player", entity.BlockMovement)
+		player := entity.NewPlayerCharacter()
 
-		entities := []*entity.Entity{
+		entities := []interfaces.Entity{
 			player,
 		}
 
@@ -63,7 +64,7 @@ func main() {
 
 		for {
 			if fovRecompute {
-				RecomputeFoV(fovMap, player.X, player.Y, fovRadius, fov.Light{})
+				RecomputeFoV(fovMap, player.X(), player.Y(), fovRadius, fov.Light{})
 			}
 
 			// Draw screen.
@@ -79,12 +80,12 @@ func main() {
 				switch action := handleKeyEvent(event).(type) {
 				case ActionMove:
 					if gameState == PlayerTurnState {
-						x := player.X + action.X
-						y := player.Y + action.Y
+						x := player.X() + action.X
+						y := player.Y() + action.Y
 						if !gameMap.IsBlocked(x, y) {
 							otherEntity := entity.FindEntityAtLocation(entities, x, y, entity.BlockMovement, entity.BlockMovement)
 							if otherEntity != nil {
-								fmt.Printf("You lick the %s in the shins, much to its enjoyment!\n", otherEntity.Name)
+								fmt.Printf("You lick the %s in the shins, much to its enjoyment!\n", otherEntity.Name())
 							} else {
 								player.Move(action.X, action.Y)
 								fovRecompute = true
@@ -103,7 +104,7 @@ func main() {
 			if gameState == NPCTurnState {
 				for i, e := range entities {
 					if i > 0 {
-						fmt.Printf("The %s punders.\n", e.Name)
+						fmt.Printf("The %s punders.\n", e.Name())
 					}
 				}
 				gameState = PlayerTurnState

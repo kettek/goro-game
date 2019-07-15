@@ -3,6 +3,7 @@ package mapping
 import (
 	"github.com/kettek/goro"
 	"github.com/kettek/goro-game/entity"
+	"github.com/kettek/goro-game/interfaces"
 )
 
 // GameMap is our map type for holding our tiles and dimensions.
@@ -27,7 +28,7 @@ func (g *GameMap) Initialize() {
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
-func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*entity.Entity, maxMonsters int) {
+func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]interfaces.Entity, maxMonsters int) {
 	var rooms []Rect
 
 	for r := 0; r < maxRooms; r++ {
@@ -55,8 +56,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*e
 
 			// Always place the player in the center of the first room.
 			if len(rooms) == 0 {
-				(*entities)[0].X = roomCenterX
-				(*entities)[0].Y = roomCenterY
+				(*entities)[0].SetX(roomCenterX)
+				(*entities)[0].SetY(roomCenterY)
 			} else {
 				prevCenterX, prevCenterY := rooms[len(rooms)-1].Center()
 
@@ -107,11 +108,11 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 }
 
 // PlaceEntities places 0 to maxMonsters monster entities in the provided room.
-func (g *GameMap) PlaceEntities(room Rect, entities *[]*entity.Entity, maxMonsters int) {
+func (g *GameMap) PlaceEntities(room Rect, entities *[]interfaces.Entity, maxMonsters int) {
 	monstersCount := goro.Random.Intn(maxMonsters)
 
 	for i := 0; i < monstersCount; i++ {
-		var monster *entity.Entity
+		var monster interfaces.Entity
 		// Acquire a random location within the room.
 		x := (1 + room.X1) + goro.Random.Intn(room.X2-room.X1-1)
 		y := (1 + room.Y1) + goro.Random.Intn(room.Y2-room.Y1-1)
@@ -119,9 +120,9 @@ func (g *GameMap) PlaceEntities(room Rect, entities *[]*entity.Entity, maxMonste
 		if entity.FindEntityAtLocation(*entities, x, y, 0, 0) == nil {
 			// Generate an orc with 80% probability or a troll with 20%.
 			if goro.Random.Intn(100) < 80 {
-				monster = entity.NewEntity(x, y, 'o', goro.Style{Foreground: goro.ColorLime}, "Orc", entity.BlockMovement)
+				monster = entity.NewMonsterCharacter(x, y, 'o', goro.Style{Foreground: goro.ColorLime}, "Orc")
 			} else {
-				monster = entity.NewEntity(x, y, 'T', goro.Style{Foreground: goro.ColorGreen}, "Troll", entity.BlockMovement)
+				monster = entity.NewMonsterCharacter(x, y, 'T', goro.Style{Foreground: goro.ColorGreen}, "Troll")
 			}
 			*entities = append(*entities, monster)
 		}
