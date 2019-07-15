@@ -90,7 +90,7 @@ func main() {
 								fovRecompute = true
 							}
 						}
-						gameState = EnemyTurnState
+						gameState = NPCTurnState
 					}
 				case ActionQuit:
 					goro.Quit()
@@ -100,7 +100,7 @@ func main() {
 			}
 
 			// Handle entity updates.
-			if gameState == EnemyTurnState {
+			if gameState == NPCTurnState {
 				for i, e := range entities {
 					if i > 0 {
 						fmt.Printf("The %s punders.\n", e.Name)

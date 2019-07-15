@@ -6,5 +6,5 @@ type GameState = uint8
 // Our various game states.
 const (
 	PlayerTurnState GameState = iota
-	EnemyTurnState
+	NPCTurnState
 )

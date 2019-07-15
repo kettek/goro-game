@@ -4,14 +4,6 @@ import (
 	"github.com/kettek/goro"
 )
 
-// Flags represents multiple boolean states stored within a single flag.
-type Flags = int
-
-// These are our default flags that can be merged.
-const (
-	BlockMovement Flags = 1 << iota
-)
-
 // Entity is a type for representing an active creature on a Tile.
 type Entity struct {
 	X, Y  int
