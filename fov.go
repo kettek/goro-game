@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/kettek/goro-game/mapping"
+	"github.com/kettek/goro-game/interfaces"
 	"github.com/kettek/goro/fov"
 )
 
-func InitializeFoV(g *mapping.GameMap) fov.Map {
-	fovMap := fov.NewMap(g.Width, g.Height, fov.AlgorithmBBQ)
+func InitializeFoV(g interfaces.GameMap) fov.Map {
+	fovMap := fov.NewMap(g.Width(), g.Height(), fov.AlgorithmBBQ)
 
-	for x := range g.Tiles {
-		for y, tile := range g.Tiles[x] {
-			fovMap.SetBlocksMovement(x, y, tile.BlockMovement)
-			fovMap.SetBlocksLight(x, y, tile.BlockSight)
+	for x := 0; x < g.Width(); x++ {
+		for y := 0; y < g.Height(); y++ {
+			fovMap.SetBlocksMovement(x, y, g.IsBlocked(x, y))
+			fovMap.SetBlocksLight(x, y, g.IsOpaque(x, y))
 		}
 	}
 

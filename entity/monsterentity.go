@@ -5,8 +5,8 @@ import (
 	"github.com/kettek/goro-game/interfaces"
 )
 
-func NewMonsterCharacter(x, y int, r rune, style goro.Style, name string) interfaces.Entity {
-	c := &Character{
+func NewMonsterEntity(x, y int, r rune, style goro.Style, name string) interfaces.Entity {
+	c := &Entity{
 		x:     x,
 		y:     y,
 		rune:  r,

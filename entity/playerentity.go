@@ -5,8 +5,8 @@ import (
 	"github.com/kettek/goro-game/interfaces"
 )
 
-func NewPlayerCharacter() interfaces.Entity {
-	pc := &Character{
+func NewPlayerEntity() interfaces.Entity {
+	pc := &Entity{
 		rune: '@',
 		name: "Player",
 		style: goro.Style{
@@ -20,5 +20,10 @@ func NewPlayerCharacter() interfaces.Entity {
 			power:   2,
 		},
 	}
+	pc.SetWatcher(&BasicWatcher{
+		owner: pc,
+		radius: 10,
+		recompute: true,
+	})
 	return pc
 }

@@ -14,7 +14,7 @@ import (
 func main() {
 	// Initialize goro!
 	if err := goro.InitEbiten(); err != nil {
-		//if err := goro.InitTCell(); err != nil {
+		//		if err := goro.InitTCell(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -45,22 +45,18 @@ func main() {
 			"lightGround": goro.Color{R: 150, G: 150, B: 150, A: 255},
 		}
 
-		player := entity.NewPlayerCharacter()
+		player := entity.NewPlayerEntity()
 
 		entities := []interfaces.Entity{
 			player,
 		}
 
-		gameMap := mapping.GameMap{
-			Width:  mapWidth,
-			Height: mapHeight,
-		}
-		gameMap.Initialize()
+		gameMap := mapping.NewGameMap(mapWidth, mapHeight)
 		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, &entities, maxMonstersPerRoom)
 
 		fovRecompute := true
 
-		fovMap := InitializeFoV(&gameMap)
+		fovMap := InitializeFoV(gameMap)
 
 		for {
 			if fovRecompute {
@@ -72,7 +68,7 @@ func main() {
 
 			fovRecompute = false
 
-			ClearAll(screen, entities)
+			ClearAll(screen, entities, fovMap)
 
 			// Handle events.
 			switch event := screen.WaitEvent().(type) {
@@ -102,10 +98,15 @@ func main() {
 
 			// Handle entity updates.
 			if gameState == NPCTurnState {
-				for i, e := range entities {
-					if i > 0 {
-						fmt.Printf("The %s punders.\n", e.Name())
+				for _, e := range entities {
+					if e.Actor() != nil {
+						// Target the player and take a turn.
+						e.Actor().SetTarget(entities[0])
+						e.Actor().TakeTurn(fovMap, gameMap, entities)
 					}
+					//if i > 0 {
+					//						fmt.Printf("The %s punders.\n", e.Name())
+					//}
 				}
 				gameState = PlayerTurnState
 			}

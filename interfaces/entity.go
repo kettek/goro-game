@@ -18,10 +18,15 @@ type Entity interface {
 	Style() goro.Style
 	SetStyle(goro.Style)
 	//
+	IsBlocking() bool
+	//
 	Fighter() Fighter
 	SetFighter(Fighter)
 	Actor() Actor
 	SetActor(Actor)
+	Watcher() Watcher
+	SetWatcher(Watcher)
 	//
 	Move(x, y int)
+	DistanceTo(other Entity) float64
 }

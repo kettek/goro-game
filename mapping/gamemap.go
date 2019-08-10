@@ -2,29 +2,34 @@ package mapping
 
 import (
 	"github.com/kettek/goro"
+	"github.com/kettek/goro/pathing"
 	"github.com/kettek/goro-game/entity"
 	"github.com/kettek/goro-game/interfaces"
 )
 
 // GameMap is our map type for holding our tiles and dimensions.
 type GameMap struct {
-	Width, Height int
+	width, height int
 	Tiles         [][]Tile
 }
 
-// Initialize initializes a GameMap's Tiles to match its Width and Height.
-func (g *GameMap) Initialize() {
-	g.Tiles = make([][]Tile, g.Width)
+func NewGameMap(width, height int) interfaces.GameMap {
+	g := &GameMap{
+		width: width,
+		height: height,
+	}
+	g.Tiles = make([][]Tile, g.width)
 
 	for x := range g.Tiles {
-		g.Tiles[x] = make([]Tile, g.Height)
+		g.Tiles[x] = make([]Tile, g.height)
 		for y := range g.Tiles[x] {
 			g.Tiles[x][y] = Tile{
-				BlockSight:    true,
-				BlockMovement: true,
+        Flags: BlockSight | BlockMovement,
 			}
 		}
 	}
+
+	return g
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
@@ -36,8 +41,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]in
 		width := roomMinSize + goro.Random.Intn(roomMaxSize)
 		height := roomMinSize + goro.Random.Intn(roomMaxSize)
 		// Generate a random position within the map boundaries.
-		x := goro.Random.Intn(g.Width - width - 1)
-		y := goro.Random.Intn(g.Height - height - 1)
+		x := goro.Random.Intn(g.width - width - 1)
+		y := goro.Random.Intn(g.height - height - 1)
 		// Create a Rect according to our generated sizes.
 		room := NewRect(x, y, width, height)
 
@@ -120,9 +125,9 @@ func (g *GameMap) PlaceEntities(room Rect, entities *[]interfaces.Entity, maxMon
 		if entity.FindEntityAtLocation(*entities, x, y, 0, 0) == nil {
 			// Generate an orc with 80% probability or a troll with 20%.
 			if goro.Random.Intn(100) < 80 {
-				monster = entity.NewMonsterCharacter(x, y, 'o', goro.Style{Foreground: goro.ColorLime}, "Orc")
+				monster = entity.NewMonsterEntity(x, y, 'o', goro.Style{Foreground: goro.ColorLime}, "Orc")
 			} else {
-				monster = entity.NewMonsterCharacter(x, y, 'T', goro.Style{Foreground: goro.ColorGreen}, "Troll")
+				monster = entity.NewMonsterEntity(x, y, 'T', goro.Style{Foreground: goro.ColorGreen}, "Troll")
 			}
 			*entities = append(*entities, monster)
 		}
@@ -132,7 +137,7 @@ func (g *GameMap) PlaceEntities(room Rect, entities *[]interfaces.Entity, maxMon
 // Explored returns if the tile at x by y has been explored.
 func (g *GameMap) Explored(x, y int) bool {
 	if g.InBounds(x, y) {
-		return g.Tiles[x][y].Explored
+		return g.Tiles[x][y].Flags&Explored == Explored
 	}
 	return false
 }
@@ -140,19 +145,52 @@ func (g *GameMap) Explored(x, y int) bool {
 // SetExplored sets the explored state of the tile at x and y to the passed explored bool.
 func (g *GameMap) SetExplored(x, y int, explored bool) {
 	if g.InBounds(x, y) {
-		g.Tiles[x][y].Explored = explored
+    if explored {
+      g.Tiles[x][y].Flags = g.Tiles[x][y].Flags | Explored
+    } else {
+      g.Tiles[x][y].Flags = g.Tiles[x][y].Flags &^ Explored
+    }
 	}
 }
 
 // IsBlocked returns if the given coordinates are blocking.
 func (g *GameMap) IsBlocked(x, y int) bool {
-	return g.Tiles[x][y].BlockMovement
+  if g.InBounds(x, y) {
+	  return g.Tiles[x][y].Flags&BlockMovement == BlockMovement
+  }
+  return true
+}
+
+// IsOpaque returns if the given coordinates block sight.
+func (g *GameMap) IsOpaque(x, y int) bool {
+  if g.InBounds(x, y) {
+		return g.Tiles[x][y].Flags&BlockSight == BlockSight
+  }
+  return true
+}
+
+// Width returns the width of the game map.
+func (g *GameMap) Width() int {
+	return g.width
+}
+
+// Height returns the height of the game map.
+func (g *GameMap) Height() int {
+	return g.height
 }
 
 // InBounds returns if the given coordinates are within the map's boundaries.
 func (g *GameMap) InBounds(x, y int) bool {
-	if x < 0 || x >= g.Width || y < 0 || y >= g.Height {
+	if x < 0 || x >= g.width || y < 0 || y >= g.height {
 		return false
 	}
 	return true
+}
+
+// HEHE
+func (g *GameMap) CostAt(x, y int) int {
+	if g.IsBlocked(x, y) {
+		return pathing.MaximumCost
+	}
+	return 0
 }
