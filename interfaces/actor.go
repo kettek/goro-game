@@ -9,5 +9,5 @@ type Actor interface {
 	SetOwner(Entity)
 	Target() Entity
 	SetTarget(Entity)
-	TakeTurn(fov.Map, GameMap, []Entity)
+	TakeTurn(fov.Map, GameMap, []Entity) []Result
 }

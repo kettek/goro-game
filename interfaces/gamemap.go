@@ -9,5 +9,5 @@ type GameMap interface {
 	IsBlocked(x, y int) bool
 	IsOpaque(x, y int) bool
 	InBounds(x, y int) bool
-	CostAt(x, y int) int
+	CostAt(x, y int) uint32
 }

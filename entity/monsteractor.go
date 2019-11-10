@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/kettek/goro-game/interfaces"
+	"github.com/kettek/goro-game/results"
 	"github.com/kettek/goro/fov"
 	"github.com/kettek/goro/pathing"
 )
@@ -30,14 +31,20 @@ func (a *MonsterActor) SetTarget(e interfaces.Entity) {
 	a.target = e
 }
 
-func (a *MonsterActor) TakeTurn(fovMap fov.Map, gameMap interfaces.GameMap, entities []interfaces.Entity) {
+func (a *MonsterActor) TakeTurn(fovMap fov.Map, gameMap interfaces.GameMap, entities []interfaces.Entity) (r []interfaces.Result) {
 	if fovMap.Visible(a.owner.X(), a.owner.Y()) {
 		if a.owner.DistanceTo(entities[0]) >= 3 {
 			a.PathfindTo(entities[0], gameMap, entities)
 		} else if a.target != nil && a.target.Fighter() != nil && a.target.Fighter().Hp() > 0 {
-			fmt.Printf("The %s eyeballs you ferociously.\n", a.owner.Name())
+			r = append(r, &results.Message{
+				Text: fmt.Sprintf("The %s eyeballs you ferociously.", a.owner.Name()),
+			})
+			/*a.owner.SendResult(&results.Message{
+				Text: fmt.Sprintf("The %s eyeballs you ferociously.", a.owner.Name()),
+			})*/
 		}
 	}
+	return
 }
 
 func (a *MonsterActor) MoveTo(x, y int, gameMap interfaces.GameMap, entities []interfaces.Entity) {
@@ -55,7 +62,7 @@ func (a *MonsterActor) MoveTo(x, y int, gameMap interfaces.GameMap, entities []i
 }
 
 func (a *MonsterActor) PathfindTo(target interfaces.Entity, gameMap interfaces.GameMap, entities []interfaces.Entity) {
-	path := pathing.NewPathFromFunc(gameMap.Width(), gameMap.Height(), func(x, y int) int {
+	path := pathing.NewPathFromFunc(gameMap.Width(), gameMap.Height(), func(x, y int) uint32 {
 		if gameMap.IsBlocked(x, y) {
 			return pathing.MaximumCost
 		}
@@ -76,6 +83,5 @@ func (a *MonsterActor) PathfindTo(target interfaces.Entity, gameMap interfaces.G
 	} else {
 		a.MoveTo(target.X(), target.Y(), gameMap, entities)
 	}
-	
-}
 
+}

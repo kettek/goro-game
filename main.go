@@ -8,13 +8,14 @@ import (
 	"github.com/kettek/goro-game/entity"
 	"github.com/kettek/goro-game/interfaces"
 	"github.com/kettek/goro-game/mapping"
+	"github.com/kettek/goro-game/results"
 	"github.com/kettek/goro/fov"
 )
 
 func main() {
 	// Initialize goro!
 	if err := goro.InitEbiten(); err != nil {
-		//		if err := goro.InitTCell(); err != nil {
+		//if err := goro.InitTCell(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -32,9 +33,11 @@ func main() {
 	goro.Run(func(screen *goro.Screen) {
 		// Our initial variables.
 		mapWidth, mapHeight := screen.Size()
+		mapHeight = mapHeight - 1 // For our results line
 		maxRooms, roomMinSize, roomMaxSize := 30, 6, 10
 		maxMonstersPerRoom := 3
 		gameState := PlayerTurnState
+		lastGameState := gameState
 
 		fovRadius := 10
 
@@ -58,6 +61,9 @@ func main() {
 
 		fovMap := InitializeFoV(gameMap)
 
+		var turnResults []interfaces.Result
+		maxResults := 1
+
 		for {
 			if fovRecompute {
 				RecomputeFoV(fovMap, player.X(), player.Y(), fovRadius, fov.Light{})
@@ -66,9 +72,45 @@ func main() {
 			// Draw screen.
 			DrawAll(screen, entities, gameMap, fovMap, fovRecompute, colors)
 
+			DrawResults(screen, turnResults, maxResults)
+
+			screen.Flush()
+
 			fovRecompute = false
 
 			ClearAll(screen, entities, fovMap)
+
+			ClearResults(screen, turnResults, maxResults)
+
+			// Adjust our game state to allow for processing of results that we cannot see yet due to screen limitations.
+			if gameState == ProcessResultsState {
+				gameState = lastGameState
+			}
+
+			if len(turnResults) > maxResults {
+				if gameState != ProcessResultsState {
+					lastGameState = gameState
+					gameState = ProcessResultsState
+				}
+			} else {
+				turnResults = nil
+			}
+
+			// Clear out all Seen results
+			i := 0
+			for _, r := range turnResults {
+				switch result := r.(type) {
+				case *results.Message:
+					if !result.Seen {
+						turnResults[i] = r
+						i++
+					}
+				default:
+					turnResults[i] = r
+					i++
+				}
+			}
+			turnResults = turnResults[:i]
 
 			// Handle events.
 			switch event := screen.WaitEvent().(type) {
@@ -81,7 +123,9 @@ func main() {
 						if !gameMap.IsBlocked(x, y) {
 							otherEntity := entity.FindEntityAtLocation(entities, x, y, entity.BlockMovement, entity.BlockMovement)
 							if otherEntity != nil {
-								fmt.Printf("You lick the %s in the shins, much to its enjoyment!\n", otherEntity.Name())
+								turnResults = append(turnResults, &results.Message{
+									Text: fmt.Sprintf("You lick the %s in the shins, much to its enjoyment!\n", otherEntity.Name()),
+								})
 							} else {
 								player.Move(action.X, action.Y)
 								fovRecompute = true
@@ -102,11 +146,8 @@ func main() {
 					if e.Actor() != nil {
 						// Target the player and take a turn.
 						e.Actor().SetTarget(entities[0])
-						e.Actor().TakeTurn(fovMap, gameMap, entities)
+						turnResults = append(turnResults, e.Actor().TakeTurn(fovMap, gameMap, entities)...)
 					}
-					//if i > 0 {
-					//						fmt.Printf("The %s punders.\n", e.Name())
-					//}
 				}
 				gameState = PlayerTurnState
 			}

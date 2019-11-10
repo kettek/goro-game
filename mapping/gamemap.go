@@ -188,7 +188,7 @@ func (g *GameMap) InBounds(x, y int) bool {
 }
 
 // HEHE
-func (g *GameMap) CostAt(x, y int) int {
+func (g *GameMap) CostAt(x, y int) uint32 {
 	if g.IsBlocked(x, y) {
 		return pathing.MaximumCost
 	}
